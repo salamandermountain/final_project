@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Chapter 2 Building Database | Comparing AI and Hand Counts of Deer</title>
+  <meta name="description" content="This book documents an evaluation of an AI used to count deer in camera trap photos by comparing its output to hand counts of deer." />
+  <meta name="generator" content="bookdown 0.21 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="Chapter 2 Building Database | Comparing AI and Hand Counts of Deer" />
+  <meta property="og:type" content="book" />
+  
+  
+  <meta property="og:description" content="This book documents an evaluation of an AI used to count deer in camera trap photos by comparing its output to hand counts of deer." />
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Chapter 2 Building Database | Comparing AI and Hand Counts of Deer" />
+  
+  <meta name="twitter:description" content="This book documents an evaluation of an AI used to count deer in camera trap photos by comparing its output to hand counts of deer." />
+  
+
+<meta name="author" content="Courtney Check" />
+
+
+<meta name="date" content="2021-03-10" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="index.html"/>
+<link rel="next" href="literature.html"/>
+<script src="libs/header-attrs-2.6/header-attrs.js"></script>
+<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">A Minimal Book Example</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Project Background</a></li>
+<li class="chapter" data-level="2" data-path="building-database.html"><a href="building-database.html"><i class="fa fa-check"></i><b>2</b> Building Database</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="building-database.html"><a href="building-database.html#getting-necessary-packages"><i class="fa fa-check"></i><b>2.1</b> Getting Necessary Packages</a>
+<ul>
+<li class="chapter" data-level="2.1.1" data-path="building-database.html"><a href="building-database.html#install-dbi"><i class="fa fa-check"></i><b>2.1.1</b> Install DBI</a></li>
+<li class="chapter" data-level="2.1.2" data-path="building-database.html"><a href="building-database.html#calling-packages-into-r"><i class="fa fa-check"></i><b>2.1.2</b> Calling packages into R</a></li>
+</ul></li>
+<li class="chapter" data-level="2.2" data-path="building-database.html"><a href="building-database.html#load-the-data"><i class="fa fa-check"></i><b>2.2</b> Load the Data</a></li>
+<li class="chapter" data-level="2.3" data-path="building-database.html"><a href="building-database.html#clean-the-data"><i class="fa fa-check"></i><b>2.3</b> Clean the Data</a></li>
+<li class="chapter" data-level="2.4" data-path="building-database.html"><a href="building-database.html#create-a-new-empty-sql-database"><i class="fa fa-check"></i><b>2.4</b> Create a New, Empty SQL Database</a></li>
+<li class="chapter" data-level="2.5" data-path="building-database.html"><a href="building-database.html#append-the-cleaned-data-to-the-empty-sql-database"><i class="fa fa-check"></i><b>2.5</b> Append the Cleaned Data to the Empty SQL Database</a></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="literature.html"><a href="literature.html"><i class="fa fa-check"></i><b>3</b> Literature</a></li>
+<li class="chapter" data-level="4" data-path="methods.html"><a href="methods.html"><i class="fa fa-check"></i><b>4</b> Methods</a></li>
+<li class="chapter" data-level="5" data-path="applications.html"><a href="applications.html"><i class="fa fa-check"></i><b>5</b> Applications</a>
+<ul>
+<li class="chapter" data-level="5.1" data-path="applications.html"><a href="applications.html#example-one"><i class="fa fa-check"></i><b>5.1</b> Example one</a></li>
+<li class="chapter" data-level="5.2" data-path="applications.html"><a href="applications.html#example-two"><i class="fa fa-check"></i><b>5.2</b> Example two</a></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="final-words.html"><a href="final-words.html"><i class="fa fa-check"></i><b>6</b> Final Words</a></li>
+<li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
+<li class="divider"></li>
+<li><a href="https://github.com/rstudio/bookdown" target="blank">Published with bookdown</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Comparing AI and Hand Counts of Deer</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="building-database" class="section level1" number="2">
+<h1><span class="header-section-number">Chapter 2</span> Building Database</h1>
+<p>For my research, I have deployed 107 camera traps. This generates a lot of images, all of which must be individually evaluated so that the animals in the photos can be identified and counted. Recently, we gained access to an AI that can supposedly count deer for us, but we want to compare the AI counts to our own handmade counts before adopting it. In this document, I will be creating a database of a) the hand deer counts, b) the AI deer counts and c) the site info so that I can compare how well the AI did compared to counts made by technicians.</p>
+<p>I’ve decided to arrange the database as follows:</p>
+<p><img src="/Users/courtney/Desktop/MS_Thesis/R-Code/CreatingDatabase/Database%20Structure%20Diagram.png" width="720" style="display: block; margin: auto;" /></p>
+<p>The highlighted items are the primary and foreign keys for each dataframe. The black lines show how the foreign keys will connect the dataframes to each other.</p>
+<p>Site_id is the primary key for the site info, since each row contains info on a unique site, and it can also be used as foreign key to link it to the count dataframes. Jpeg_name is the primary key for both count dataframes, because of their rows contain data for a single unique jpg. Jpeg_id can also serve as a foreign key to connect the count dataframes to each other, since both dataframes contain info on the same set of jpegs.</p>
+<div id="getting-necessary-packages" class="section level2" number="2.1">
+<h2><span class="header-section-number">2.1</span> Getting Necessary Packages</h2>
+<div id="install-dbi" class="section level3" number="2.1.1">
+<h3><span class="header-section-number">2.1.1</span> Install DBI</h3>
+<p>I am trying to install a database in SQL, so I will need the <code>DBI</code> package.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="building-database.html#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">&quot;RSQLite&quot;</span>)</span>
+<span id="cb1-2"><a href="building-database.html#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">&quot;DBI&quot;</span>)</span></code></pre></div>
+</div>
+<div id="calling-packages-into-r" class="section level3" number="2.1.2">
+<h3><span class="header-section-number">2.1.2</span> Calling packages into R</h3>
+<p>In addition to loading <code>DBI</code>, I also need <code>tidyverse</code> and <code>lubridate</code> to clean the data.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="building-database.html#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(DBI)</span>
+<span id="cb2-2"><a href="building-database.html#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb2-3"><a href="building-database.html#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lubridate)</span></code></pre></div>
+</div>
+</div>
+<div id="load-the-data" class="section level2" number="2.2">
+<h2><span class="header-section-number">2.2</span> Load the Data</h2>
+<p>The full database of all the AI and hand counted photos is apparently too big to work with as just 2 files, so I have subsetted it into seasons. I have included just one season/year (summer 2019) to show my process in a way that doesn’t have too much repetition, though it works them same for all the season/years.</p>
+<p>I am loading three csvs: the hand counts of deer, the ai counts of deer, and the information on each site.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="building-database.html#cb3-1" aria-hidden="true" tabindex="-1"></a>hand <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">&quot;/Users/courtney/Desktop/MS_Thesis/Data/Compiled-Raw/summer19.csv&quot;</span>, <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb3-2"><a href="building-database.html#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="building-database.html#cb3-3" aria-hidden="true" tabindex="-1"></a>ai <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">&quot;/Users/courtney/Desktop/MS_Thesis/Data/Compiled-Raw/AI.summer19.csv&quot;</span>, <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb3-4"><a href="building-database.html#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="building-database.html#cb3-5" aria-hidden="true" tabindex="-1"></a>site <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">&quot;/Users/courtney/Desktop/MS_Thesis/Data/Compiled-Raw/site_info.csv&quot;</span>, <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
+</div>
+<div id="clean-the-data" class="section level2" number="2.3">
+<h2><span class="header-section-number">2.3</span> Clean the Data</h2>
+<p>First, I clean the hand count data. To do this, I coerce the photo date/photo time columns to be date and time objects, respectively. I also pull out only the columns I want, to leave out redundant categories like organism family, order, class, etc. and rename them so that common columns/keys will match with the other dataframes.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="building-database.html#cb4-1" aria-hidden="true" tabindex="-1"></a>hand.clean <span class="ot">&lt;-</span> hand <span class="sc">%&gt;%</span> </span>
+<span id="cb4-2"><a href="building-database.html#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">dt =</span> <span class="fu">ymd_hms</span>(<span class="fu">paste</span>(Photo.Date, Photo.time))) <span class="sc">%&gt;%</span> </span>
+<span id="cb4-3"><a href="building-database.html#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="at">jpg_name =</span> Raw.Name,</span>
+<span id="cb4-4"><a href="building-database.html#cb4-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">site_id =</span> Camera.Trap.Name,</span>
+<span id="cb4-5"><a href="building-database.html#cb4-5" aria-hidden="true" tabindex="-1"></a>         <span class="at">species =</span> Species,</span>
+<span id="cb4-6"><a href="building-database.html#cb4-6" aria-hidden="true" tabindex="-1"></a>         <span class="at">sampling_event =</span> Sampling.Event,</span>
+<span id="cb4-7"><a href="building-database.html#cb4-7" aria-hidden="true" tabindex="-1"></a>         <span class="at">photo_type =</span> Photo.Type,</span>
+<span id="cb4-8"><a href="building-database.html#cb4-8" aria-hidden="true" tabindex="-1"></a>         <span class="at">photo_date =</span> Photo.Date,</span>
+<span id="cb4-9"><a href="building-database.html#cb4-9" aria-hidden="true" tabindex="-1"></a>         <span class="at">photo_time =</span> Photo.time,</span>
+<span id="cb4-10"><a href="building-database.html#cb4-10" aria-hidden="true" tabindex="-1"></a>         <span class="at">n_all =</span> Number.of.Animals,</span>
+<span id="cb4-11"><a href="building-database.html#cb4-11" aria-hidden="true" tabindex="-1"></a>         <span class="at">person_identifying =</span> Person.Identifying.the.Photo,</span>
+<span id="cb4-12"><a href="building-database.html#cb4-12" aria-hidden="true" tabindex="-1"></a>         <span class="at">camera_start_date =</span> Camera.Start.Date,</span>
+<span id="cb4-13"><a href="building-database.html#cb4-13" aria-hidden="true" tabindex="-1"></a>         <span class="at">camera_end_date =</span> Camera.End.Date) <span class="sc">%&gt;%</span> </span>
+<span id="cb4-14"><a href="building-database.html#cb4-14" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Mule deer are tagged with species as &#39;hemionus&#39;</span></span>
+<span id="cb4-15"><a href="building-database.html#cb4-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">n_animals =</span> <span class="fu">case_when</span>(</span>
+<span id="cb4-16"><a href="building-database.html#cb4-16" aria-hidden="true" tabindex="-1"></a>    species <span class="sc">==</span> <span class="st">&quot;hemionus&quot;</span> <span class="sc">|</span> species <span class="sc">==</span> <span class="st">&quot;guttata&quot;</span> <span class="sc">~</span> n_all,</span>
+<span id="cb4-17"><a href="building-database.html#cb4-17" aria-hidden="true" tabindex="-1"></a>    <span class="cn">TRUE</span> <span class="sc">~</span> 0L</span>
+<span id="cb4-18"><a href="building-database.html#cb4-18" aria-hidden="true" tabindex="-1"></a>  )) <span class="sc">%&gt;%</span> </span>
+<span id="cb4-19"><a href="building-database.html#cb4-19" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Drop n_animals and species</span></span>
+<span id="cb4-20"><a href="building-database.html#cb4-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>n_all)</span></code></pre></div>
+<p>Next, I clean the AI count data. Once again, I pull out only the columns I want and leave out extra unnccessary columns like the file path to the jpg, etc. and rename them so that common columns/keys will match with the other dataframes.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="building-database.html#cb5-1" aria-hidden="true" tabindex="-1"></a>ai.clean <span class="ot">&lt;-</span> ai <span class="sc">%&gt;%</span> </span>
+<span id="cb5-2"><a href="building-database.html#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="at">jpg_name =</span> Raw_Name,</span>
+<span id="cb5-3"><a href="building-database.html#cb5-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">site_id =</span> Camera.Trap.Name,</span>
+<span id="cb5-4"><a href="building-database.html#cb5-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">hand_animal_present =</span> hand_label_has_animal,</span>
+<span id="cb5-5"><a href="building-database.html#cb5-5" aria-hidden="true" tabindex="-1"></a>         <span class="at">ai_animal_present =</span> det_has_animal,</span>
+<span id="cb5-6"><a href="building-database.html#cb5-6" aria-hidden="true" tabindex="-1"></a>         <span class="at">ai_count =</span> n_pred_deer)</span></code></pre></div>
+<p>Lastly, I do modify the “site_id” category so that it is consistent across all three databases. Because the “site” dataframe just includes site as a single number, I remove all the “SITE” characters from the hand count and AI count dataframes.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="building-database.html#cb6-1" aria-hidden="true" tabindex="-1"></a>hand.clean<span class="sc">$</span>site_id <span class="ot">=</span> <span class="fu">gsub</span>(<span class="st">&quot; &quot;</span>, <span class="st">&quot;&quot;</span>, hand.clean<span class="sc">$</span>site_id)</span>
+<span id="cb6-2"><a href="building-database.html#cb6-2" aria-hidden="true" tabindex="-1"></a>hand.clean<span class="sc">$</span>site_id <span class="ot">=</span> <span class="fu">gsub</span>(<span class="st">&quot;Site&quot;</span>, <span class="st">&quot;&quot;</span>, hand.clean<span class="sc">$</span>site_id)</span>
+<span id="cb6-3"><a href="building-database.html#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="building-database.html#cb6-4" aria-hidden="true" tabindex="-1"></a>ai.clean<span class="sc">$</span>site_id <span class="ot">=</span> <span class="fu">gsub</span>(<span class="st">&quot;site&quot;</span>, <span class="st">&quot;&quot;</span>, ai.clean<span class="sc">$</span>site_id)</span>
+<span id="cb6-5"><a href="building-database.html#cb6-5" aria-hidden="true" tabindex="-1"></a>ai.clean<span class="sc">$</span>site_id <span class="ot">=</span> <span class="fu">gsub</span>(<span class="st">&quot;00&quot;</span>, <span class="st">&quot;&quot;</span>, ai.clean<span class="sc">$</span>site_id)</span>
+<span id="cb6-6"><a href="building-database.html#cb6-6" aria-hidden="true" tabindex="-1"></a>ai.clean<span class="sc">$</span>site_id <span class="ot">=</span> <span class="fu">gsub</span>(<span class="st">&quot;(?&lt;!</span><span class="sc">\\</span><span class="st">d)0&quot;</span>, <span class="st">&quot;&quot;</span>, ai.clean<span class="sc">$</span>site_id, <span class="at">perl =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+</div>
+<div id="create-a-new-empty-sql-database" class="section level2" number="2.4">
+<h2><span class="header-section-number">2.4</span> Create a New, Empty SQL Database</h2>
+<p>Here, I create an empty SQL database using the DBI package that I can later populate.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="building-database.html#cb7-1" aria-hidden="true" tabindex="-1"></a>counts_db <span class="ot">&lt;-</span> <span class="fu">dbConnect</span>(RSQLite<span class="sc">::</span><span class="fu">SQLite</span>(), <span class="st">&quot;/Users/courtney/Desktop/MS_Thesis/Data/SQL_db.db&quot;</span>)</span></code></pre></div>
+</div>
+<div id="append-the-cleaned-data-to-the-empty-sql-database" class="section level2" number="2.5">
+<h2><span class="header-section-number">2.5</span> Append the Cleaned Data to the Empty SQL Database</h2>
+<p>First, I create the database tables, specificing the primary and foreign keys for each one.</p>
+<p><strong>Site Info Table:</strong></p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="building-database.html#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbExecute</span>(counts_db, </span>
+<span id="cb8-2"><a href="building-database.html#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="st">&quot;CREATE TABLE site_info (</span></span>
+<span id="cb8-3"><a href="building-database.html#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="st"> site_id double(3) NOT NULL,</span></span>
+<span id="cb8-4"><a href="building-database.html#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="st"> camera_id double(3) NOT NULL,</span></span>
+<span id="cb8-5"><a href="building-database.html#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="st"> sd_id varchar(5) NOT NULL,</span></span>
+<span id="cb8-6"><a href="building-database.html#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="st"> lat double(20),</span></span>
+<span id="cb8-7"><a href="building-database.html#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="st"> long double(20),</span></span>
+<span id="cb8-8"><a href="building-database.html#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="st"> mount char(100),</span></span>
+<span id="cb8-9"><a href="building-database.html#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="st"> landmark   char(100),</span></span>
+<span id="cb8-10"><a href="building-database.html#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="st"> PRIMARY KEY (site_id)</span></span>
+<span id="cb8-11"><a href="building-database.html#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="st">);&quot;</span>)</span></code></pre></div>
+<p><strong>AI Count Table:</strong></p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="building-database.html#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbExecute</span>(counts_db, </span>
+<span id="cb9-2"><a href="building-database.html#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="st">&quot;CREATE TABLE ai_counts (</span></span>
+<span id="cb9-3"><a href="building-database.html#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="st"> jpg_name varchar(100) NOT NULL,</span></span>
+<span id="cb9-4"><a href="building-database.html#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="st"> site_id double(3) NOT NULL,</span></span>
+<span id="cb9-5"><a href="building-database.html#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="st"> hand_animal_present char(10),</span></span>
+<span id="cb9-6"><a href="building-database.html#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="st"> ai_animal_present char(10),</span></span>
+<span id="cb9-7"><a href="building-database.html#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="st"> ai_count double(10),</span></span>
+<span id="cb9-8"><a href="building-database.html#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="st"> PRIMARY KEY (jpg_name)</span></span>
+<span id="cb9-9"><a href="building-database.html#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="st"> FOREIGN KEY (jpg_name) REFERENCES hand_counts(jpg_name)</span></span>
+<span id="cb9-10"><a href="building-database.html#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="st"> FOREIGN KEY (site_id) REFERENCES site_info(site_id)</span></span>
+<span id="cb9-11"><a href="building-database.html#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="st">);&quot;</span>)</span></code></pre></div>
+<p><strong>Hand Count Table:</strong></p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="building-database.html#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbExecute</span>(counts_db, </span>
+<span id="cb10-2"><a href="building-database.html#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="st">&quot;CREATE TABLE hand_counts (</span></span>
+<span id="cb10-3"><a href="building-database.html#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="st"> jpg_name varchar(100) NOT NULL,</span></span>
+<span id="cb10-4"><a href="building-database.html#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="st"> site_id double(3) NOT NULL,</span></span>
+<span id="cb10-5"><a href="building-database.html#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="st"> species char(50),</span></span>
+<span id="cb10-6"><a href="building-database.html#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="st"> sampling_event varchar(50),</span></span>
+<span id="cb10-7"><a href="building-database.html#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="st"> photo_type varchar(50),</span></span>
+<span id="cb10-8"><a href="building-database.html#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="st"> photo_date varchar(50),</span></span>
+<span id="cb10-9"><a href="building-database.html#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="st"> photo_time varchar(50),</span></span>
+<span id="cb10-10"><a href="building-database.html#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="st"> person_identifying varchar(50),</span></span>
+<span id="cb10-11"><a href="building-database.html#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="st"> camera_start_date varchar(50),</span></span>
+<span id="cb10-12"><a href="building-database.html#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="st"> camera_end_date varchar(50),</span></span>
+<span id="cb10-13"><a href="building-database.html#cb10-13" aria-hidden="true" tabindex="-1"></a><span class="st"> n_animals double(10),</span></span>
+<span id="cb10-14"><a href="building-database.html#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="st"> PRIMARY KEY (jpg_name)</span></span>
+<span id="cb10-15"><a href="building-database.html#cb10-15" aria-hidden="true" tabindex="-1"></a><span class="st"> FOREIGN KEY (jpg_name) REFERENCES ai_counts(jpg_name)</span></span>
+<span id="cb10-16"><a href="building-database.html#cb10-16" aria-hidden="true" tabindex="-1"></a><span class="st"> FOREIGN KEY (site_id) REFERENCES site_info(site_id)</span></span>
+<span id="cb10-17"><a href="building-database.html#cb10-17" aria-hidden="true" tabindex="-1"></a><span class="st">);&quot;</span>)</span></code></pre></div>
+<p>Then, I add all of the cleaned dataframes into the SQL database. Database complete! I also check to make sure that the dataframes were actually added by calling their first ten rows to look at.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="building-database.html#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbWriteTable</span>(counts_db, <span class="st">&quot;site_info&quot;</span>, site, <span class="at">append =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb11-2"><a href="building-database.html#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(counts_db, <span class="st">&quot;SELECT * FROM site_info LIMIT 10;&quot;</span>)</span>
+<span id="cb11-3"><a href="building-database.html#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-4"><a href="building-database.html#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="fu">dbWriteTable</span>(counts_db, <span class="st">&quot;ai_counts&quot;</span>, ai.clean, <span class="at">append =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb11-5"><a href="building-database.html#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(counts_db, <span class="st">&quot;SELECT * FROM ai_counts LIMIT 10;&quot;</span>)</span>
+<span id="cb11-6"><a href="building-database.html#cb11-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-7"><a href="building-database.html#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="fu">dbWriteTable</span>(counts_db, <span class="st">&quot;hand_counts&quot;</span>, hand.clean, <span class="at">append =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb11-8"><a href="building-database.html#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(counts_db, <span class="st">&quot;SELECT * FROM hand_counts LIMIT 10;&quot;</span>)</span></code></pre></div>
+
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="index.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="literature.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": ["Count_Check_Bookdown.pdf", "Count_Check_Bookdown.epub"],
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+</body>
+
+</html>

@@ -1,0 +1,236 @@
+--- 
+title: "Comparing AI and Hand Counts of Deer"
+author: "Courtney Check"
+date: "`r Sys.Date()`"
+site: bookdown::bookdown_site
+documentclass: book
+bibliography: [book.bib, packages.bib]
+biblio-style: apalike
+link-citations: yes
+description: "This book documents an evaluation of an AI used to count deer in camera trap photos by comparing its output to hand counts of deer."
+---
+
+# Project Background
+
+As part of my MS Thesis, I will need to count deer across several thousand camera trap photos. To speed this up, someone developed an AI that will supposedly count deer in the photos for us. However, before we adopt the AI, I want to compare the AI's counts to our handmade counts, and see if there are any site-level or seasonal differences in its counting ability. This book documents my evaluation of the AI's effectiveness.
+
+<!--chapter:end:index.Rmd-->
+
+# Building Database
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+For my research, I have deployed 107 camera traps. This generates a lot of images, all of which must be individually evaluated so that the animals in the photos can be identified and counted. Recently, we gained access to an AI that can supposedly count deer for us, but we want to compare the AI counts to our own handmade counts before adopting it. In this document, I will be creating a database of a) the hand deer counts, b) the AI deer counts and c) the site info so that I can compare how well the AI did compared to counts made by technicians. 
+
+I've decided to arrange the database as follows:
+
+```{r image, echo = FALSE, fig.align = "center"}
+knitr::include_graphics("/Users/courtney/Desktop/MS_Thesis/R-Code/CreatingDatabase/Database Structure Diagram.png")
+```
+
+The highlighted items are the primary and foreign keys for each dataframe. The black lines show how the foreign keys will connect the dataframes to each other. 
+
+Site_id is the primary key for the site info, since each row contains info on a unique site, and it can also be used as  foreign key to link it to the count dataframes. Jpeg_name is the primary key for both count dataframes, because of their rows contain data for a single unique jpg. Jpeg_id can also serve as a foreign key to connect the count dataframes to each other, since both dataframes contain info on the same set of jpegs.
+
+## Getting Necessary Packages
+
+### Install DBI
+
+I am trying to install a database in SQL, so I will need the `DBI` package.
+
+```{r install, include=TRUE, eval = FALSE}
+install.packages("RSQLite")
+install.packages("DBI")
+```
+
+### Calling packages into R
+
+In addition to loading `DBI`, I also need `tidyverse` and `lubridate` to clean the data.
+
+```{r library, include=TRUE, message = FALSE}
+library(DBI)
+library(tidyverse)
+library(lubridate)
+```
+
+## Load the Data
+
+The full database of all the AI and hand counted photos is apparently too big to work with as just 2 files, so I have subsetted it into seasons. I have included just one season/year (summer 2019) to show my process in a way that doesn't have too much repetition, though it works them same for all the season/years.
+
+I am loading three csvs: the hand counts of deer, the ai counts of deer, and the information on each site.
+
+
+```{r load, include=TRUE}
+hand <- read.csv("/Users/courtney/Desktop/MS_Thesis/Data/Compiled-Raw/summer19.csv", stringsAsFactors = FALSE)
+
+ai <- read.csv("/Users/courtney/Desktop/MS_Thesis/Data/Compiled-Raw/AI.summer19.csv", stringsAsFactors = FALSE)
+
+site <- read.csv("/Users/courtney/Desktop/MS_Thesis/Data/Compiled-Raw/site_info.csv", stringsAsFactors = FALSE)
+```
+
+## Clean the Data
+
+First, I clean the hand count data. To do this, I coerce the photo date/photo time columns to be date and time objects, respectively. I also pull out only the columns I want, to leave out redundant categories like organism family, order, class, etc. and rename them so that common columns/keys will match with the other dataframes.
+
+```{r clean_h, include=TRUE}
+hand.clean <- hand %>% 
+  mutate(dt = ymd_hms(paste(Photo.Date, Photo.time))) %>% 
+  select(jpg_name = Raw.Name,
+         site_id = Camera.Trap.Name,
+         species = Species,
+         sampling_event = Sampling.Event,
+         photo_type = Photo.Type,
+         photo_date = Photo.Date,
+         photo_time = Photo.time,
+         n_all = Number.of.Animals,
+         person_identifying = Person.Identifying.the.Photo,
+         camera_start_date = Camera.Start.Date,
+         camera_end_date = Camera.End.Date) %>% 
+  # Mule deer are tagged with species as 'hemionus'
+  mutate(n_animals = case_when(
+    species == "hemionus" | species == "guttata" ~ n_all,
+    TRUE ~ 0L
+  )) %>% 
+  # Drop n_animals and species
+  select(-n_all)
+```
+
+Next, I clean the AI count data. Once again, I pull out only the columns I want and leave out extra unnccessary columns like the file path to the jpg, etc. and rename them so that common columns/keys will match with the other dataframes.
+
+```{r clean_a, include=TRUE}
+ai.clean <- ai %>% 
+  select(jpg_name = Raw_Name,
+         site_id = Camera.Trap.Name,
+         hand_animal_present = hand_label_has_animal,
+         ai_animal_present = det_has_animal,
+         ai_count = n_pred_deer)
+```
+
+Lastly, I do modify the "site_id" category so that it is consistent across all three databases. Because the "site" dataframe just includes site as a single number, I remove all the "SITE" characters from the hand count and AI count dataframes.
+
+```{r no_string, include=TRUE}
+hand.clean$site_id = gsub(" ", "", hand.clean$site_id)
+hand.clean$site_id = gsub("Site", "", hand.clean$site_id)
+
+ai.clean$site_id = gsub("site", "", ai.clean$site_id)
+ai.clean$site_id = gsub("00", "", ai.clean$site_id)
+ai.clean$site_id = gsub("(?<!\\d)0", "", ai.clean$site_id, perl = TRUE)
+```
+
+## Create a New, Empty SQL Database
+
+Here, I create an empty SQL database using the DBI package that I can later populate.
+
+```{r create_db, include=TRUE}
+counts_db <- dbConnect(RSQLite::SQLite(), "/Users/courtney/Desktop/MS_Thesis/Data/SQL_db.db")
+```
+
+## Append the Cleaned Data to the Empty SQL Database
+
+First, I create the database tables, specificing the primary and foreign keys for each one.
+
+**Site Info Table:**
+
+```{r create_site_tble, eval=FALSE}
+dbExecute(counts_db, 
+"CREATE TABLE site_info (
+ site_id double(3) NOT NULL,
+ camera_id double(3) NOT NULL,
+ sd_id varchar(5) NOT NULL,
+ lat double(20),
+ long double(20),
+ mount char(100),
+ landmark	char(100),
+ PRIMARY KEY (site_id)
+);")
+```
+
+**AI Count Table:**
+
+```{r create_ai_tble, eval=FALSE}
+dbExecute(counts_db, 
+"CREATE TABLE ai_counts (
+ jpg_name varchar(100) NOT NULL,
+ site_id double(3) NOT NULL,
+ hand_animal_present char(10),
+ ai_animal_present char(10),
+ ai_count double(10),
+ PRIMARY KEY (jpg_name)
+ FOREIGN KEY (jpg_name) REFERENCES hand_counts(jpg_name)
+ FOREIGN KEY (site_id) REFERENCES site_info(site_id)
+);")
+```
+
+**Hand Count Table:**
+
+```{r create_hand_tble, eval=FALSE}
+dbExecute(counts_db, 
+"CREATE TABLE hand_counts (
+ jpg_name varchar(100) NOT NULL,
+ site_id double(3) NOT NULL,
+ species char(50),
+ sampling_event varchar(50),
+ photo_type varchar(50),
+ photo_date varchar(50),
+ photo_time varchar(50),
+ person_identifying varchar(50),
+ camera_start_date varchar(50),
+ camera_end_date varchar(50),
+ n_animals double(10),
+ PRIMARY KEY (jpg_name)
+ FOREIGN KEY (jpg_name) REFERENCES ai_counts(jpg_name)
+ FOREIGN KEY (site_id) REFERENCES site_info(site_id)
+);")
+```
+
+Then, I add all of the cleaned dataframes into the SQL database. Database complete! I also check to make sure that the dataframes were actually added by calling their first ten rows to look at.
+
+```{r populate_db, include=TRUE, eval = FALSE}
+dbWriteTable(counts_db, "site_info", site, append = TRUE)
+dbGetQuery(counts_db, "SELECT * FROM site_info LIMIT 10;")
+
+dbWriteTable(counts_db, "ai_counts", ai.clean, append = TRUE)
+dbGetQuery(counts_db, "SELECT * FROM ai_counts LIMIT 10;")
+
+dbWriteTable(counts_db, "hand_counts", hand.clean, append = TRUE)
+dbGetQuery(counts_db, "SELECT * FROM hand_counts LIMIT 10;")
+```
+
+<!--chapter:end:01-Building_Database.Rmd-->
+
+# Literature
+
+Here is a review of existing methods.
+
+<!--chapter:end:02-literature.Rmd-->
+
+# Methods
+
+We describe our methods in this chapter.
+
+<!--chapter:end:03-method.Rmd-->
+
+# Applications
+
+Some _significant_ applications are demonstrated in this chapter.
+
+## Example one
+
+## Example two
+
+<!--chapter:end:04-application.Rmd-->
+
+# Final Words
+
+We have finished a nice book.
+
+<!--chapter:end:05-summary.Rmd-->
+
+`r if (knitr::is_html_output()) '
+# References {-}
+'`
+
+<!--chapter:end:06-references.Rmd-->
+

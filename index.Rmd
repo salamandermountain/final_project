@@ -1,0 +1,15 @@
+--- 
+title: "Comparing AI and Hand Counts of Deer"
+author: "Courtney Check"
+date: "`r Sys.Date()`"
+site: bookdown::bookdown_site
+documentclass: book
+bibliography: [book.bib, packages.bib]
+biblio-style: apalike
+link-citations: yes
+description: "This book documents an evaluation of an AI used to count deer in camera trap photos by comparing its output to hand counts of deer."
+---
+
+# Project Background
+
+As part of my MS Thesis, I will need to count deer across several thousand camera trap photos. To speed this up, someone developed an AI that will supposedly count deer in the photos for us. However, before we adopt the AI, I want to compare the AI's counts to our handmade counts, and see if there are any site-level or seasonal differences in its counting ability. This book documents my evaluation of the AI's effectiveness.

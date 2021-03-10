@@ -1,0 +1,16 @@
+h1:project-background Project Background
+h1:building-database Building Database
+h2:getting-necessary-packages Getting Necessary Packages
+h3:install-dbi Install DBI
+h3:calling-packages-into-r Calling packages into R
+h2:load-the-data Load the Data
+h2:clean-the-data Clean the Data
+h2:create-a-new-empty-sql-database Create a New, Empty SQL Database
+h2:append-the-cleaned-data-to-the-empty-sql-database Append the Cleaned Data to the Empty SQL Database
+h1:literature Literature
+h1:methods Methods
+h1:applications Applications
+h2:example-one Example one
+h2:example-two Example two
+h1:final-words Final Words
+

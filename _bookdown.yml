@@ -1,0 +1,6 @@
+book_filename: "Count_Check_Bookdown"
+delete_merged_file: true
+language:
+  ui:
+    chapter_name: "Chapter "
+output_dir: docs

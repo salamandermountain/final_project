@@ -1,0 +1,9 @@
+h2:compiling-the-database Compiling the Database
+h3:getting-necessary-packages 1. Getting Necessary Packages
+h4:install-dbi Install DBI
+h4:calling-packages-into-r Calling packages into R
+h3:load-the-data 2. Load the Data
+h3:clean-the-data 3. Clean the Data
+h3:create-a-new-empty-sql-database 4. Create a New, Empty SQL Database
+h3:append-the-cleaned-data-to-the-empty-sql-database 5. Append the Cleaned Data to the Empty SQL Database
+
