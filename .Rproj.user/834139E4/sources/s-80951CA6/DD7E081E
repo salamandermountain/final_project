@@ -3,7 +3,7 @@
     "path": "~/Desktop/MS_Thesis/R-Code/Count_Check_Bookdown/_output.yml",
     "project_path": "_output.yml",
     "type": "yaml",
-    "hash": "1248109858",
+    "hash": "1022836868",
     "contents": "",
     "dirty": false,
     "created": 1615351413476.0,
@@ -12,15 +12,15 @@
     "properties": {
         "source_window_id": "",
         "Source": "Source",
-        "cursorPosition": "16,0",
+        "cursorPosition": "5,48",
         "scrollLine": "0"
     },
     "folds": "",
-    "lastKnownWriteTime": 1615392524,
+    "lastKnownWriteTime": 1615394100,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1615392524597,
+    "last_content_update": 1615394100066,
     "read_only": false,
     "read_only_alternatives": []
 }
