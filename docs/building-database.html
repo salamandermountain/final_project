@@ -179,7 +179,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <h1><span class="header-section-number">Chapter 2</span> Building Database</h1>
 <p>For my research, I have deployed 107 camera traps. This generates a lot of images, all of which must be individually evaluated so that the animals in the photos can be identified and counted. Recently, we gained access to an AI that can supposedly count deer for us, but we want to compare the AI counts to our own handmade counts before adopting it. In this document, I will be creating a database of a) the hand deer counts, b) the AI deer counts and c) the site info so that I can compare how well the AI did compared to counts made by technicians.</p>
 <p>I’ve decided to arrange the database as follows:</p>
-<p><img src="Database_Structure_Diagram.png" width="720" style="display: block; margin: auto;" /></p>
+<p><img src="Database_Structure_Diagram.png" width="480" style="display: block; margin: auto;" /></p>
 <p>The highlighted items are the primary and foreign keys for each dataframe. The black lines show how the foreign keys will connect the dataframes to each other.</p>
 <p>Site_id is the primary key for the site info, since each row contains info on a unique site, and it can also be used as foreign key to link it to the count dataframes. Jpeg_name is the primary key for both count dataframes, because of their rows contain data for a single unique jpg. Jpeg_id can also serve as a foreign key to connect the count dataframes to each other, since both dataframes contain info on the same set of jpegs.</p>
 <div id="getting-necessary-packages" class="section level2" number="2.1">
