@@ -1,0 +1,55 @@
+# Checking Overall Agreement {#overall}
+
+First, I want to get a sense of the overall agreement between hand counts and AI counts. This will give an idea of the total amount of data we might be losing to the AI algorithm. To do this, I first have to calculate the difference between the AI and hand counts. 
+ 
+```{r calculate_diff, include=TRUE, eval = TRUE, message = FALSE}
+hand.counts <- dbGetQuery(counts_db, "SELECT * FROM hand_counts;")
+ai.counts <- dbGetQuery(counts_db, "SELECT * FROM ai_counts;")
+
+ai_hand <- hand.counts %>% 
+  inner_join(ai.counts, by = c("jpg_name", "site_id")) %>%
+  mutate(diff = n_animals - ai_count)
+```
+
+Next, I look at the *mean*, *standard deviation*, and *range* of difference between AI and hand counts.
+
+```{r general_agreement, include=TRUE, eval = TRUE, message = TRUE}
+m = mean(ai_hand$diff)
+s = sd(ai_hand$diff)
+r = range(ai_hand$diff)
+```
+
+Here's the **Mean**: 
+```{r mean, include=TRUE, echo = FALSE, eval = TRUE, message = TRUE}
+m = mean(ai_hand$diff)
+print(m)
+```
+
+Here's the **Standard Deviation**: 
+```{r sd, include=TRUE, echo = FALSE, eval = TRUE, message = TRUE}
+s = sd(ai_hand$diff)
+print(s)
+```
+
+Here's the **Range**: 
+```{r range, include=TRUE, echo = FALSE, eval = TRUE, message = TRUE}
+r = range(ai_hand$diff)
+print(r)
+```
+
+From this, I can see that the mean and sd are very low, but the range shows that there are still some pretty big miscounts by the AI. So I also want to check how often the AI makes "big" miscalculations. "Big" in this case, is any instance of > +/-1 deer.
+
+```{r ai_count_frequency, include=TRUE, eval = TRUE, message = TRUE}
+ai_hand %>% 
+  group_by(diff) %>% 
+  summarize(freq = n()) %>%
+  mutate(percent = round((freq/sum(freq)*100))) %>%
+  rename("Count Difference" = diff,
+         "Frequency" = freq,
+         "Percent of Observations" = percent) %>%
+  knitr::kable(align = "c") 
+```
+
+Looks like most of the AI's counts are within the +/-1 deer range! The big miscounts make up only less than one percent of the counts. 
+
+Overall, agreement seems pretty good! The mean and sd are very low, and even though there some big miscounts, they are a very small portion of all the counts.

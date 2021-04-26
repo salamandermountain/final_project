@@ -4,11 +4,11 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>Comparing AI and Hand Counts of Deer</title>
+  <title>Chapter 3 Checking Overall Agreement | Comparing AI and Hand Counts of Deer</title>
   <meta name="description" content="This book documents an evaluation of an AI used to count deer in camera trap photos by comparing its output to hand counts of deer." />
   <meta name="generator" content="bookdown 0.21 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="Comparing AI and Hand Counts of Deer" />
+  <meta property="og:title" content="Chapter 3 Checking Overall Agreement | Comparing AI and Hand Counts of Deer" />
   <meta property="og:type" content="book" />
   
   
@@ -16,7 +16,7 @@
   
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="Comparing AI and Hand Counts of Deer" />
+  <meta name="twitter:title" content="Chapter 3 Checking Overall Agreement | Comparing AI and Hand Counts of Deer" />
   
   <meta name="twitter:description" content="This book documents an evaluation of an AI used to count deer in camera trap photos by comparing its output to hand counts of deer." />
   
@@ -31,8 +31,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   
   
-
-<link rel="next" href="database.html"/>
+<link rel="prev" href="database.html"/>
+<link rel="next" href="site.html"/>
 <script src="libs/header-attrs-2.6/header-attrs.js"></script>
 <script src="libs/jquery-2.2.3/jquery.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
@@ -173,40 +173,121 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="header">
-<h1 class="title">Comparing AI and Hand Counts of Deer</h1>
-<p class="author"><em>Courtney Check</em></p>
-<p class="date"><em>2021-04-26</em></p>
-</div>
-<div id="introduction" class="section level1" number="1">
-<h1><span class="header-section-number">Chapter 1</span> Introduction</h1>
-<p>As part of my MS Thesis, I will need to count deer across several thousand camera trap photos. To speed this up, someone developed an AI that will supposedly count deer in the photos for us. However, before we adopt the AI, I want to compare the AI’s counts to our handmade counts, and see if there are any site-level differences in its counting ability. This book documents my evaluation of the AI’s effectiveness.</p>
-<div id="project-goals" class="section level2" number="1.1">
-<h2><span class="header-section-number">1.1</span> Project Goals</h2>
-<p>The goals of this project are to:</p>
-<ol style="list-style-type: decimal">
-<li>Check the agreement between the hand counts of deer and the AI counts of deer</li>
-<li>Check if there are site-level discrepancies in the AI counts</li>
-<li>Identify problem sites</li>
-</ol>
-</div>
-<div id="project-outline" class="section level2" number="1.2">
-<h2><span class="header-section-number">1.2</span> Project Outline</h2>
-<p>Chapter <a href="index.html#introduction">1</a>: Introduction</p>
-<p>Chapter <a href="database.html#database">2</a>: Database Creation</p>
-<p>Chapter <a href="overall.html#overall">3</a>: Checking Overall Count Agreement</p>
-<p>Chapter <a href="site.html#site">4</a>: Checking Site-level Count Agreement</p>
-<p>Chapter <a href="conclusion.html#conclusion">5</a>: Conclusion</p>
+<div id="overall" class="section level1" number="3">
+<h1><span class="header-section-number">Chapter 3</span> Checking Overall Agreement</h1>
+<p>First, I want to get a sense of the overall agreement between hand counts and AI counts. This will give an idea of the total amount of data we might be losing to the AI algorithm. To do this, I first have to calculate the difference between the AI and hand counts.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="overall.html#cb12-1" aria-hidden="true" tabindex="-1"></a>hand.counts <span class="ot">&lt;-</span> <span class="fu">dbGetQuery</span>(counts_db, <span class="st">&quot;SELECT * FROM hand_counts;&quot;</span>)</span>
+<span id="cb12-2"><a href="overall.html#cb12-2" aria-hidden="true" tabindex="-1"></a>ai.counts <span class="ot">&lt;-</span> <span class="fu">dbGetQuery</span>(counts_db, <span class="st">&quot;SELECT * FROM ai_counts;&quot;</span>)</span>
+<span id="cb12-3"><a href="overall.html#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-4"><a href="overall.html#cb12-4" aria-hidden="true" tabindex="-1"></a>ai_hand <span class="ot">&lt;-</span> hand.counts <span class="sc">%&gt;%</span> </span>
+<span id="cb12-5"><a href="overall.html#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">inner_join</span>(ai.counts, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;jpg_name&quot;</span>, <span class="st">&quot;site_id&quot;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb12-6"><a href="overall.html#cb12-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">diff =</span> n_animals <span class="sc">-</span> ai_count)</span></code></pre></div>
+<p>Next, I look at the <em>mean</em>, <em>standard deviation</em>, and <em>range</em> of difference between AI and hand counts.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="overall.html#cb13-1" aria-hidden="true" tabindex="-1"></a>m <span class="ot">=</span> <span class="fu">mean</span>(ai_hand<span class="sc">$</span>diff)</span>
+<span id="cb13-2"><a href="overall.html#cb13-2" aria-hidden="true" tabindex="-1"></a>s <span class="ot">=</span> <span class="fu">sd</span>(ai_hand<span class="sc">$</span>diff)</span>
+<span id="cb13-3"><a href="overall.html#cb13-3" aria-hidden="true" tabindex="-1"></a>r <span class="ot">=</span> <span class="fu">range</span>(ai_hand<span class="sc">$</span>diff)</span></code></pre></div>
+<p>Here’s the <strong>Mean</strong>:</p>
+<pre><code>## [1] 0.005713605</code></pre>
+<p>Here’s the <strong>Standard Deviation</strong>:</p>
+<pre><code>## [1] 0.1933531</code></pre>
+<p>Here’s the <strong>Range</strong>:</p>
+<pre><code>## [1] -4  8</code></pre>
+<p>From this, I can see that the mean and sd are very low, but the range shows that there are still some pretty big miscounts by the AI. So I also want to check how often the AI makes “big” miscalculations. “Big” in this case, is any instance of &gt; +/-1 deer.</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="overall.html#cb17-1" aria-hidden="true" tabindex="-1"></a>ai_hand <span class="sc">%&gt;%</span> </span>
+<span id="cb17-2"><a href="overall.html#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(diff) <span class="sc">%&gt;%</span> </span>
+<span id="cb17-3"><a href="overall.html#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">freq =</span> <span class="fu">n</span>()) <span class="sc">%&gt;%</span></span>
+<span id="cb17-4"><a href="overall.html#cb17-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">percent =</span> <span class="fu">round</span>((freq<span class="sc">/</span><span class="fu">sum</span>(freq)<span class="sc">*</span><span class="dv">100</span>))) <span class="sc">%&gt;%</span></span>
+<span id="cb17-5"><a href="overall.html#cb17-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="st">&quot;Count Difference&quot;</span> <span class="ot">=</span> diff,</span>
+<span id="cb17-6"><a href="overall.html#cb17-6" aria-hidden="true" tabindex="-1"></a>         <span class="st">&quot;Frequency&quot;</span> <span class="ot">=</span> freq,</span>
+<span id="cb17-7"><a href="overall.html#cb17-7" aria-hidden="true" tabindex="-1"></a>         <span class="st">&quot;Percent of Observations&quot;</span> <span class="ot">=</span> percent) <span class="sc">%&gt;%</span></span>
+<span id="cb17-8"><a href="overall.html#cb17-8" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">align =</span> <span class="st">&quot;c&quot;</span>) </span></code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th align="center">Count Difference</th>
+<th align="center">Frequency</th>
+<th align="center">Percent of Observations</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">-4</td>
+<td align="center">1</td>
+<td align="center">0</td>
+</tr>
+<tr class="even">
+<td align="center">-3</td>
+<td align="center">7</td>
+<td align="center">0</td>
+</tr>
+<tr class="odd">
+<td align="center">-2</td>
+<td align="center">47</td>
+<td align="center">0</td>
+</tr>
+<tr class="even">
+<td align="center">-1</td>
+<td align="center">1399</td>
+<td align="center">1</td>
+</tr>
+<tr class="odd">
+<td align="center">0</td>
+<td align="center">130883</td>
+<td align="center">97</td>
+</tr>
+<tr class="even">
+<td align="center">1</td>
+<td align="center">1604</td>
+<td align="center">1</td>
+</tr>
+<tr class="odd">
+<td align="center">2</td>
+<td align="center">250</td>
+<td align="center">0</td>
+</tr>
+<tr class="even">
+<td align="center">3</td>
+<td align="center">39</td>
+<td align="center">0</td>
+</tr>
+<tr class="odd">
+<td align="center">4</td>
+<td align="center">4</td>
+<td align="center">0</td>
+</tr>
+<tr class="even">
+<td align="center">5</td>
+<td align="center">1</td>
+<td align="center">0</td>
+</tr>
+<tr class="odd">
+<td align="center">6</td>
+<td align="center">2</td>
+<td align="center">0</td>
+</tr>
+<tr class="even">
+<td align="center">7</td>
+<td align="center">1</td>
+<td align="center">0</td>
+</tr>
+<tr class="odd">
+<td align="center">8</td>
+<td align="center">3</td>
+<td align="center">0</td>
+</tr>
+</tbody>
+</table>
+<p>Looks like most of the AI’s counts are within the +/-1 deer range! The big miscounts make up only less than one percent of the counts.</p>
+<p>Overall, agreement seems pretty good! The mean and sd are very low, and even though there some big miscounts, they are a very small portion of all the counts.</p>
 
-</div>
 </div>
             </section>
 
           </div>
         </div>
       </div>
-
-<a href="database.html" class="navigation navigation-next navigation-unique" aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="database.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="site.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>

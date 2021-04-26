@@ -9,14 +9,33 @@ biblio-style: apalike
 link-citations: yes
 description: "This book documents an evaluation of an AI used to count deer in camera trap photos by comparing its output to hand counts of deer."
 ---
+# Introduction {#introduction}
 
-# Project Background
+As part of my MS Thesis, I will need to count deer across several thousand camera trap photos. To speed this up, someone developed an AI that will supposedly count deer in the photos for us. However, before we adopt the AI, I want to compare the AI's counts to our handmade counts, and see if there are any site-level differences in its counting ability. This book documents my evaluation of the AI's effectiveness.
 
-As part of my MS Thesis, I will need to count deer across several thousand camera trap photos. To speed this up, someone developed an AI that will supposedly count deer in the photos for us. However, before we adopt the AI, I want to compare the AI's counts to our handmade counts, and see if there are any site-level or seasonal differences in its counting ability. This book documents my evaluation of the AI's effectiveness.
+## Project Goals
+
+The goals of this project are to:
+
+1. Check the agreement between the hand counts of deer and the AI counts of deer
+2. Check if there are site-level discrepancies in the AI counts
+3. Identify problem sites
+
+## Project Outline
+
+Chapter \@ref(introduction): Introduction
+
+Chapter \@ref(database): Database Creation
+
+Chapter \@ref(overall): Checking Overall Count Agreement
+
+Chapter \@ref(site): Checking Site-level Count Agreement
+
+Chapter \@ref(conclusion): Conclusion
 
 <!--chapter:end:index.Rmd-->
 
-# Building Database
+# Database Creation {#database}
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -32,7 +51,7 @@ knitr::include_graphics("/Users/courtney/Desktop/MS_Thesis/R-Code/Count_Check_Bo
 
 The highlighted items are the primary and foreign keys for each dataframe. The black lines show how the foreign keys will connect the dataframes to each other. 
 
-Site_id is the primary key for the site info, since each row contains info on a unique site, and it can also be used as  foreign key to link it to the count dataframes. Jpeg_name is the primary key for both count dataframes, because of their rows contain data for a single unique jpg. Jpeg_id can also serve as a foreign key to connect the count dataframes to each other, since both dataframes contain info on the same set of jpegs.
+Site_id is the primary key for the site info, since each row contains info on a unique site, and it can also be used as  foreign key to link it to the count dataframes. Jpeg_name is the primary key for both count dataframes, because of their rows contain data for a single unique jpg. Jpeg_name can also serve as a foreign key to connect the count dataframes to each other, since both dataframes contain info on the same set of jpegs.
 
 ## Getting Necessary Packages
 
@@ -49,7 +68,7 @@ install.packages("DBI")
 
 In addition to loading `DBI`, I also need `tidyverse` and `lubridate` to clean the data.
 
-```{r library, include=TRUE, message = FALSE}
+```{r library, include=TRUE, eval = TRUE, message = FALSE}
 library(DBI)
 library(tidyverse)
 library(lubridate)
@@ -61,8 +80,7 @@ The full database of all the AI and hand counted photos is apparently too big to
 
 I am loading three csvs: the hand counts of deer, the ai counts of deer, and the information on each site.
 
-
-```{r load, include=TRUE}
+```{r load, include=TRUE, eval = TRUE, message = FALSE}
 hand <- read.csv("/Users/courtney/Desktop/MS_Thesis/Data/Compiled-Raw/summer19.csv", stringsAsFactors = FALSE)
 
 ai <- read.csv("/Users/courtney/Desktop/MS_Thesis/Data/Compiled-Raw/AI.summer19.csv", stringsAsFactors = FALSE)
@@ -74,7 +92,7 @@ site <- read.csv("/Users/courtney/Desktop/MS_Thesis/Data/Compiled-Raw/site_info.
 
 First, I clean the hand count data. To do this, I coerce the photo date/photo time columns to be date and time objects, respectively. I also pull out only the columns I want, to leave out redundant categories like organism family, order, class, etc. and rename them so that common columns/keys will match with the other dataframes.
 
-```{r clean_h, include=TRUE}
+```{r clean_h, include=TRUE, eval = TRUE}
 hand.clean <- hand %>% 
   mutate(dt = ymd_hms(paste(Photo.Date, Photo.time))) %>% 
   select(jpg_name = Raw.Name,
@@ -99,7 +117,7 @@ hand.clean <- hand %>%
 
 Next, I clean the AI count data. Once again, I pull out only the columns I want and leave out extra unnccessary columns like the file path to the jpg, etc. and rename them so that common columns/keys will match with the other dataframes.
 
-```{r clean_a, include=TRUE}
+```{r clean_a, include=TRUE, eval = TRUE}
 ai.clean <- ai %>% 
   select(jpg_name = Raw_Name,
          site_id = Camera.Trap.Name,
@@ -110,7 +128,7 @@ ai.clean <- ai %>%
 
 Lastly, I do modify the "site_id" category so that it is consistent across all three databases. Because the "site" dataframe just includes site as a single number, I remove all the "SITE" characters from the hand count and AI count dataframes.
 
-```{r no_string, include=TRUE}
+```{r no_string, include=TRUE, eval = TRUE, message = FALSE}
 hand.clean$site_id = gsub(" ", "", hand.clean$site_id)
 hand.clean$site_id = gsub("Site", "", hand.clean$site_id)
 
@@ -123,7 +141,7 @@ ai.clean$site_id = gsub("(?<!\\d)0", "", ai.clean$site_id, perl = TRUE)
 
 Here, I create an empty SQL database using the DBI package that I can later populate.
 
-```{r create_db, include=TRUE}
+```{r create_db, include=TRUE, eval = TRUE, message = FALSE}
 counts_db <- dbConnect(RSQLite::SQLite(), "/Users/courtney/Desktop/MS_Thesis/Data/SQL_db.db")
 ```
 
@@ -133,7 +151,7 @@ First, I create the database tables, specificing the primary and foreign keys fo
 
 **Site Info Table:**
 
-```{r create_site_tble, eval=FALSE}
+```{r create_site_tble, eval = FALSE}
 dbExecute(counts_db, 
 "CREATE TABLE site_info (
  site_id double(3) NOT NULL,
@@ -149,7 +167,7 @@ dbExecute(counts_db,
 
 **AI Count Table:**
 
-```{r create_ai_tble, eval=FALSE}
+```{r create_ai_tble, eval = FALSE}
 dbExecute(counts_db, 
 "CREATE TABLE ai_counts (
  jpg_name varchar(100) NOT NULL,
@@ -165,7 +183,7 @@ dbExecute(counts_db,
 
 **Hand Count Table:**
 
-```{r create_hand_tble, eval=FALSE}
+```{r create_hand_tble, eval = FALSE}
 dbExecute(counts_db, 
 "CREATE TABLE hand_counts (
  jpg_name varchar(100) NOT NULL,
@@ -198,39 +216,133 @@ dbWriteTable(counts_db, "hand_counts", hand.clean, append = TRUE)
 dbGetQuery(counts_db, "SELECT * FROM hand_counts LIMIT 10;")
 ```
 
-<!--chapter:end:01-Building_Database.Rmd-->
+<!--chapter:end:01-Database_Creation.Rmd-->
 
-# Literature
+# Checking Overall Agreement {#overall}
 
-Here is a review of existing methods.
+First, I want to get a sense of the overall agreement between hand counts and AI counts. This will give an idea of the total amount of data we might be losing to the AI algorithm. To do this, I first have to calculate the difference between the AI and hand counts. 
+ 
+```{r calculate_diff, include=TRUE, eval = TRUE, message = FALSE}
+hand.counts <- dbGetQuery(counts_db, "SELECT * FROM hand_counts;")
+ai.counts <- dbGetQuery(counts_db, "SELECT * FROM ai_counts;")
 
-<!--chapter:end:02-literature.Rmd-->
+ai_hand <- hand.counts %>% 
+  inner_join(ai.counts, by = c("jpg_name", "site_id")) %>%
+  mutate(diff = n_animals - ai_count)
+```
 
-# Methods
+Next, I look at the *mean*, *standard deviation*, and *range* of difference between AI and hand counts.
 
-We describe our methods in this chapter.
+```{r general_agreement, include=TRUE, eval = TRUE, message = TRUE}
+m = mean(ai_hand$diff)
+s = sd(ai_hand$diff)
+r = range(ai_hand$diff)
+```
 
-<!--chapter:end:03-method.Rmd-->
+Here's the **Mean**: 
+```{r mean, include=TRUE, echo = FALSE, eval = TRUE, message = TRUE}
+m = mean(ai_hand$diff)
+print(m)
+```
 
-# Applications
+Here's the **Standard Deviation**: 
+```{r sd, include=TRUE, echo = FALSE, eval = TRUE, message = TRUE}
+s = sd(ai_hand$diff)
+print(s)
+```
 
-Some _significant_ applications are demonstrated in this chapter.
+Here's the **Range**: 
+```{r range, include=TRUE, echo = FALSE, eval = TRUE, message = TRUE}
+r = range(ai_hand$diff)
+print(r)
+```
 
-## Example one
+From this, I can see that the mean and sd are very low, but the range shows that there are still some pretty big miscounts by the AI. So I also want to check how often the AI makes "big" miscalculations. "Big" in this case, is any instance of > +/-1 deer.
 
-## Example two
+```{r ai_count_frequency, include=TRUE, eval = TRUE, message = TRUE}
+ai_hand %>% 
+  group_by(diff) %>% 
+  summarize(freq = n()) %>%
+  mutate(percent = round((freq/sum(freq)*100))) %>%
+  rename("Count Difference" = diff,
+         "Frequency" = freq,
+         "Percent of Observations" = percent) %>%
+  knitr::kable(align = "c") 
+```
 
-<!--chapter:end:04-application.Rmd-->
+Looks like most of the AI's counts are within the +/-1 deer range! The big miscounts make up only less than one percent of the counts. 
 
-# Final Words
+Overall, agreement seems pretty good! The mean and sd are very low, and even though there some big miscounts, they are a very small portion of all the counts.
 
-We have finished a nice book.
+<!--chapter:end:02-Checking_Overall_Agreement.Rmd-->
 
-<!--chapter:end:05-summary.Rmd-->
+# Checking Site-level Agreement {#site}
 
-`r if (knitr::is_html_output()) '
-# References {-}
-'`
+Even though overall agreement is really good, it's possible that there are some sites where the AI is less effective because of the terrain, shade level, etc. Because our sites don't change, if I identify problem sites now, I can know to not trust the AI's counts and to hand--count these sites in the future.
+ 
+First things first: I want to check the min, max, and mean of count difference for each site.
 
-<!--chapter:end:06-references.Rmd-->
+```{r site_diffs, include=TRUE, eval = TRUE, message = TRUE}
+site_diff <- ai_hand %>% 
+  group_by(site_id) %>% 
+  summarize(n = n(),
+            min_diff = min(diff),
+            mean_diff = mean(diff),
+            max_diff = max(diff))
+
+site_diff %>%
+  arrange(desc(max_diff)) %>%
+  slice_head(n = 20) %>%
+  rename(Site = site_id,
+         "Number of Observations" = n,
+         Min_Diff = min_diff,
+         Mean_Diff = mean_diff,
+         Max_Diff = max_diff) %>%
+  knitr::kable(align = "c")
+```
+
+Definitely a lot of variation! Some sites are perfect, others are in between, and one site (Site 74) has the biggest over-count AND nearly the biggest under-count. To help better get a grasp of the variation, I'm going to plot it by site.
+  
+```{r plot_diffs, include=TRUE, eval = TRUE, message = TRUE}
+site_diff %>%
+  arrange(desc(site_id)) %>%
+  ggplot(aes(x = factor(site_id), y = mean_diff)) +
+  geom_point() +
+  geom_errorbar(aes(ymin = min_diff, ymax = max_diff)) +
+  labs(title = "Comparison of AI Counts to Hand Counts by Site", x = "Site", y = "Difference (Hand - AI)") +
+  theme_light() +
+  theme(plot.title = element_text(size = 19, face = "bold", hjust = 0.5),
+        axis.title = element_text(size = 11),
+        axis.text.x = element_text(size = 7, angle = 90, vjust = 0.5))
+```
+
+
+While this is a good eyeball assessment, I want to firmly identify "problem" sites. A "problem" site in this case is going to be defined as any site that correctly counts <90% of all photos.
+
+```{r site_count_frequency, include=TRUE, eval = TRUE, message = FALSE, results = TRUE}
+ai_hand %>% 
+  group_by(site_id, diff) %>%
+  summarize(freq = n()) %>%
+  mutate(percent = round((freq/sum(freq)*100), digits = 2) ) %>%
+  filter(max(percent) < 90) %>%
+  top_n(1, percent) %>%
+  select(site_id, percent) %>%
+  rename(Site = site_id,
+         "Percent Correct AI Counts" = percent) %>%
+  knitr::kable(align = "c") 
+```
+
+Only four sites! That's not bad. And most of them hover around 90% agreement, with only one site (Site 8) sporting a truly abysmal 77.88% agreement. Now that I know these sites are difficult for the AI to count deer at, I can be sure to check their counts by hand going forward. 
+
+<!--chapter:end:03-Checking_Site_Agreement.Rmd-->
+
+# Conclusion {#conclusion}
+
+Overall, the AI seems to perform pretty well! While there are a handful of sites that will still need to be hand-counted, the AI will still be able to save us a lot of time without sacrificing much data! Yay!
+
+```{r deer_image, echo = FALSE, fig.align = "center"}
+knitr::include_graphics("/Users/courtney/Desktop/MS_Thesis/R-Code/Count_Check_Bookdown/site002_sd008_spring2019_72.jpg")
+```
+
+<!--chapter:end:04-Conclusion.Rmd-->
 

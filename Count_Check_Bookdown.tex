@@ -118,7 +118,7 @@
 
 \title{Comparing AI and Hand Counts of Deer}
 \author{Courtney Check}
-\date{2021-03-10}
+\date{2021-04-26}
 
 \begin{document}
 \maketitle
@@ -127,13 +127,42 @@
 \setcounter{tocdepth}{1}
 \tableofcontents
 }
-\hypertarget{project-background}{%
-\chapter{Project Background}\label{project-background}}
+\hypertarget{introduction}{%
+\chapter{Introduction}\label{introduction}}
 
-As part of my MS Thesis, I will need to count deer across several thousand camera trap photos. To speed this up, someone developed an AI that will supposedly count deer in the photos for us. However, before we adopt the AI, I want to compare the AI's counts to our handmade counts, and see if there are any site-level or seasonal differences in its counting ability. This book documents my evaluation of the AI's effectiveness.
+As part of my MS Thesis, I will need to count deer across several thousand camera trap photos. To speed this up, someone developed an AI that will supposedly count deer in the photos for us. However, before we adopt the AI, I want to compare the AI's counts to our handmade counts, and see if there are any site-level differences in its counting ability. This book documents my evaluation of the AI's effectiveness.
 
-\hypertarget{building-database}{%
-\chapter{Building Database}\label{building-database}}
+\hypertarget{project-goals}{%
+\section{Project Goals}\label{project-goals}}
+
+The goals of this project are to:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Check the agreement between the hand counts of deer and the AI counts of deer
+\item
+  Check if there are site-level discrepancies in the AI counts
+\item
+  Identify problem sites
+\end{enumerate}
+
+\hypertarget{project-outline}{%
+\section{Project Outline}\label{project-outline}}
+
+Chapter \ref{introduction}: Introduction
+
+Chapter \ref{database}: Database Creation
+
+Chapter \ref{overall}: Checking Overall Count Agreement
+
+Chapter \ref{site}: Checking Site-level Count Agreement
+
+Chapter \ref{conclusion}: Conclusion
+
+\hypertarget{database}{%
+\chapter{Database Creation}\label{database}}
 
 For my research, I have deployed 107 camera traps. This generates a lot of images, all of which must be individually evaluated so that the animals in the photos can be identified and counted. Recently, we gained access to an AI that can supposedly count deer for us, but we want to compare the AI counts to our own handmade counts before adopting it. In this document, I will be creating a database of a) the hand deer counts, b) the AI deer counts and c) the site info so that I can compare how well the AI did compared to counts made by technicians.
 
@@ -143,7 +172,7 @@ I've decided to arrange the database as follows:
 
 The highlighted items are the primary and foreign keys for each dataframe. The black lines show how the foreign keys will connect the dataframes to each other.
 
-Site\_id is the primary key for the site info, since each row contains info on a unique site, and it can also be used as foreign key to link it to the count dataframes. Jpeg\_name is the primary key for both count dataframes, because of their rows contain data for a single unique jpg. Jpeg\_id can also serve as a foreign key to connect the count dataframes to each other, since both dataframes contain info on the same set of jpegs.
+Site\_id is the primary key for the site info, since each row contains info on a unique site, and it can also be used as foreign key to link it to the count dataframes. Jpeg\_name is the primary key for both count dataframes, because of their rows contain data for a single unique jpg. Jpeg\_name can also serve as a foreign key to connect the count dataframes to each other, since both dataframes contain info on the same set of jpegs.
 
 \hypertarget{getting-necessary-packages}{%
 \section{Getting Necessary Packages}\label{getting-necessary-packages}}
@@ -337,31 +366,233 @@ Then, I add all of the cleaned dataframes into the SQL database. Database comple
 \end{Highlighting}
 \end{Shaded}
 
-\hypertarget{literature}{%
-\chapter{Literature}\label{literature}}
+\hypertarget{overall}{%
+\chapter{Checking Overall Agreement}\label{overall}}
 
-Here is a review of existing methods.
+First, I want to get a sense of the overall agreement between hand counts and AI counts. This will give an idea of the total amount of data we might be losing to the AI algorithm. To do this, I first have to calculate the difference between the AI and hand counts.
 
-\hypertarget{methods}{%
-\chapter{Methods}\label{methods}}
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{hand.counts }\OtherTok{\textless{}{-}} \FunctionTok{dbGetQuery}\NormalTok{(counts\_db, }\StringTok{"SELECT * FROM hand\_counts;"}\NormalTok{)}
+\NormalTok{ai.counts }\OtherTok{\textless{}{-}} \FunctionTok{dbGetQuery}\NormalTok{(counts\_db, }\StringTok{"SELECT * FROM ai\_counts;"}\NormalTok{)}
 
-We describe our methods in this chapter.
+\NormalTok{ai\_hand }\OtherTok{\textless{}{-}}\NormalTok{ hand.counts }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{inner\_join}\NormalTok{(ai.counts, }\AttributeTok{by =} \FunctionTok{c}\NormalTok{(}\StringTok{"jpg\_name"}\NormalTok{, }\StringTok{"site\_id"}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{diff =}\NormalTok{ n\_animals }\SpecialCharTok{{-}}\NormalTok{ ai\_count)}
+\end{Highlighting}
+\end{Shaded}
 
-\hypertarget{applications}{%
-\chapter{Applications}\label{applications}}
+Next, I look at the \emph{mean}, \emph{standard deviation}, and \emph{range} of difference between AI and hand counts.
 
-Some \emph{significant} applications are demonstrated in this chapter.
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{m }\OtherTok{=} \FunctionTok{mean}\NormalTok{(ai\_hand}\SpecialCharTok{$}\NormalTok{diff)}
+\NormalTok{s }\OtherTok{=} \FunctionTok{sd}\NormalTok{(ai\_hand}\SpecialCharTok{$}\NormalTok{diff)}
+\NormalTok{r }\OtherTok{=} \FunctionTok{range}\NormalTok{(ai\_hand}\SpecialCharTok{$}\NormalTok{diff)}
+\end{Highlighting}
+\end{Shaded}
 
-\hypertarget{example-one}{%
-\section{Example one}\label{example-one}}
+Here's the \textbf{Mean}:
 
-\hypertarget{example-two}{%
-\section{Example two}\label{example-two}}
+\begin{verbatim}
+## [1] 0.005713605
+\end{verbatim}
 
-\hypertarget{final-words}{%
-\chapter{Final Words}\label{final-words}}
+Here's the \textbf{Standard Deviation}:
 
-We have finished a nice book.
+\begin{verbatim}
+## [1] 0.1933531
+\end{verbatim}
+
+Here's the \textbf{Range}:
+
+\begin{verbatim}
+## [1] -4  8
+\end{verbatim}
+
+From this, I can see that the mean and sd are very low, but the range shows that there are still some pretty big miscounts by the AI. So I also want to check how often the AI makes ``big'' miscalculations. ``Big'' in this case, is any instance of \textgreater{} +/-1 deer.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{ai\_hand }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{group\_by}\NormalTok{(diff) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{summarize}\NormalTok{(}\AttributeTok{freq =} \FunctionTok{n}\NormalTok{()) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{percent =} \FunctionTok{round}\NormalTok{((freq}\SpecialCharTok{/}\FunctionTok{sum}\NormalTok{(freq)}\SpecialCharTok{*}\DecValTok{100}\NormalTok{))) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{rename}\NormalTok{(}\StringTok{"Count Difference"} \OtherTok{=}\NormalTok{ diff,}
+         \StringTok{"Frequency"} \OtherTok{=}\NormalTok{ freq,}
+         \StringTok{"Percent of Observations"} \OtherTok{=}\NormalTok{ percent) }\SpecialCharTok{\%\textgreater{}\%}
+\NormalTok{  knitr}\SpecialCharTok{::}\FunctionTok{kable}\NormalTok{(}\AttributeTok{align =} \StringTok{"c"}\NormalTok{) }
+\end{Highlighting}
+\end{Shaded}
+
+\begin{tabular}{c|c|c}
+\hline
+Count Difference & Frequency & Percent of Observations\\
+\hline
+-4 & 1 & 0\\
+\hline
+-3 & 7 & 0\\
+\hline
+-2 & 47 & 0\\
+\hline
+-1 & 1399 & 1\\
+\hline
+0 & 130883 & 97\\
+\hline
+1 & 1604 & 1\\
+\hline
+2 & 250 & 0\\
+\hline
+3 & 39 & 0\\
+\hline
+4 & 4 & 0\\
+\hline
+5 & 1 & 0\\
+\hline
+6 & 2 & 0\\
+\hline
+7 & 1 & 0\\
+\hline
+8 & 3 & 0\\
+\hline
+\end{tabular}
+
+Looks like most of the AI's counts are within the +/-1 deer range! The big miscounts make up only less than one percent of the counts.
+
+Overall, agreement seems pretty good! The mean and sd are very low, and even though there some big miscounts, they are a very small portion of all the counts.
+
+\hypertarget{site}{%
+\chapter{Checking Site-level Agreement}\label{site}}
+
+Even though overall agreement is really good, it's possible that there are some sites where the AI is less effective because of the terrain, shade level, etc. Because our sites don't change, if I identify problem sites now, I can know to not trust the AI's counts and to hand--count these sites in the future.
+
+First things first: I want to check the min, max, and mean of count difference for each site.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{site\_diff }\OtherTok{\textless{}{-}}\NormalTok{ ai\_hand }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{group\_by}\NormalTok{(site\_id) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{summarize}\NormalTok{(}\AttributeTok{n =} \FunctionTok{n}\NormalTok{(),}
+            \AttributeTok{min\_diff =} \FunctionTok{min}\NormalTok{(diff),}
+            \AttributeTok{mean\_diff =} \FunctionTok{mean}\NormalTok{(diff),}
+            \AttributeTok{max\_diff =} \FunctionTok{max}\NormalTok{(diff))}
+
+\NormalTok{site\_diff }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{arrange}\NormalTok{(}\FunctionTok{desc}\NormalTok{(max\_diff)) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{slice\_head}\NormalTok{(}\AttributeTok{n =} \DecValTok{20}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{rename}\NormalTok{(}\AttributeTok{Site =}\NormalTok{ site\_id,}
+         \StringTok{"Number of Observations"} \OtherTok{=}\NormalTok{ n,}
+         \AttributeTok{Min\_Diff =}\NormalTok{ min\_diff,}
+         \AttributeTok{Mean\_Diff =}\NormalTok{ mean\_diff,}
+         \AttributeTok{Max\_Diff =}\NormalTok{ max\_diff) }\SpecialCharTok{\%\textgreater{}\%}
+\NormalTok{  knitr}\SpecialCharTok{::}\FunctionTok{kable}\NormalTok{(}\AttributeTok{align =} \StringTok{"c"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{tabular}{c|c|c|c|c}
+\hline
+Site & Number of Observations & Min\_Diff & Mean\_Diff & Max\_Diff\\
+\hline
+74 & 1585 & -3 & 0.1249211 & 8\\
+\hline
+8 & 312 & -2 & 0.1089744 & 3\\
+\hline
+41 & 14694 & -4 & 0.0596162 & 3\\
+\hline
+68 & 946 & 0 & 0.0528541 & 3\\
+\hline
+82 & 191 & -1 & 0.1413613 & 3\\
+\hline
+86 & 2224 & -1 & 0.0193345 & 3\\
+\hline
+25 & 11352 & -1 & -0.0069591 & 2\\
+\hline
+40 & 2112 & -1 & -0.0066288 & 2\\
+\hline
+42 & 2229 & -2 & -0.0116644 & 2\\
+\hline
+44 & 4905 & -3 & -0.0101937 & 2\\
+\hline
+75 & 1812 & -1 & -0.0005519 & 2\\
+\hline
+79 & 2828 & -1 & 0.0042433 & 2\\
+\hline
+87 & 2582 & -1 & 0.0290473 & 2\\
+\hline
+90 & 2379 & -1 & 0.0369903 & 2\\
+\hline
+98 & 1234 & -1 & -0.0008104 & 2\\
+\hline
+1 & 622 & -1 & 0.0209003 & 1\\
+\hline
+5 & 171 & -1 & 0.0175439 & 1\\
+\hline
+7 & 489 & -1 & -0.0020450 & 1\\
+\hline
+9 & 4666 & -3 & -0.0025718 & 1\\
+\hline
+10 & 3546 & -1 & -0.0016920 & 1\\
+\hline
+\end{tabular}
+
+Definitely a lot of variation! Some sites are perfect, others are in between, and one site (Site 74) has the biggest over-count AND nearly the biggest under-count. To help better get a grasp of the variation, I'm going to plot it by site.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{site\_diff }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{arrange}\NormalTok{(}\FunctionTok{desc}\NormalTok{(site\_id)) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{ggplot}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =} \FunctionTok{factor}\NormalTok{(site\_id), }\AttributeTok{y =}\NormalTok{ mean\_diff)) }\SpecialCharTok{+}
+  \FunctionTok{geom\_point}\NormalTok{() }\SpecialCharTok{+}
+  \FunctionTok{geom\_errorbar}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{ymin =}\NormalTok{ min\_diff, }\AttributeTok{ymax =}\NormalTok{ max\_diff)) }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}\AttributeTok{title =} \StringTok{"Comparison of AI Counts to Hand Counts by Site"}\NormalTok{, }\AttributeTok{x =} \StringTok{"Site"}\NormalTok{, }\AttributeTok{y =} \StringTok{"Difference (Hand {-} AI)"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{theme\_light}\NormalTok{() }\SpecialCharTok{+}
+  \FunctionTok{theme}\NormalTok{(}\AttributeTok{plot.title =} \FunctionTok{element\_text}\NormalTok{(}\AttributeTok{size =} \DecValTok{19}\NormalTok{, }\AttributeTok{face =} \StringTok{"bold"}\NormalTok{, }\AttributeTok{hjust =} \FloatTok{0.5}\NormalTok{),}
+        \AttributeTok{axis.title =} \FunctionTok{element\_text}\NormalTok{(}\AttributeTok{size =} \DecValTok{11}\NormalTok{),}
+        \AttributeTok{axis.text.x =} \FunctionTok{element\_text}\NormalTok{(}\AttributeTok{size =} \DecValTok{7}\NormalTok{, }\AttributeTok{angle =} \DecValTok{90}\NormalTok{, }\AttributeTok{vjust =} \FloatTok{0.5}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{Count_Check_Bookdown_files/figure-latex/plot_diffs-1.pdf}
+
+While this is a good eyeball assessment, I want to firmly identify ``problem'' sites. A ``problem'' site in this case is going to be defined as any site that correctly counts \textless90\% of all photos.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{ai\_hand }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{group\_by}\NormalTok{(site\_id, diff) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{summarize}\NormalTok{(}\AttributeTok{freq =} \FunctionTok{n}\NormalTok{()) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{percent =} \FunctionTok{round}\NormalTok{((freq}\SpecialCharTok{/}\FunctionTok{sum}\NormalTok{(freq)}\SpecialCharTok{*}\DecValTok{100}\NormalTok{), }\AttributeTok{digits =} \DecValTok{2}\NormalTok{) ) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{filter}\NormalTok{(}\FunctionTok{max}\NormalTok{(percent) }\SpecialCharTok{\textless{}} \DecValTok{90}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{top\_n}\NormalTok{(}\DecValTok{1}\NormalTok{, percent) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{select}\NormalTok{(site\_id, percent) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{rename}\NormalTok{(}\AttributeTok{Site =}\NormalTok{ site\_id,}
+         \StringTok{"Percent Correct AI Counts"} \OtherTok{=}\NormalTok{ percent) }\SpecialCharTok{\%\textgreater{}\%}
+\NormalTok{  knitr}\SpecialCharTok{::}\FunctionTok{kable}\NormalTok{(}\AttributeTok{align =} \StringTok{"c"}\NormalTok{) }
+\end{Highlighting}
+\end{Shaded}
+
+\begin{tabular}{c|c}
+\hline
+Site & Percent Correct AI Counts\\
+\hline
+8 & 77.88\\
+\hline
+20 & 88.89\\
+\hline
+74 & 87.95\\
+\hline
+82 & 89.01\\
+\hline
+\end{tabular}
+
+Only four sites! That's not bad. And most of them hover around 90\% agreement, with only one site (Site 8) sporting a truly abysmal 77.88\% agreement. Now that I know these sites are difficult for the AI to count deer at, I can be sure to check their counts by hand going forward.
+
+\hypertarget{conclusion}{%
+\chapter{Conclusion}\label{conclusion}}
+
+Overall, the AI seems to perform pretty well! While there are a handful of sites that will still need to be hand-counted, the AI will still be able to save us a lot of time without sacrificing much data! Yay!
+
+\begin{center}\includegraphics[width=36in]{/Users/courtney/Desktop/MS_Thesis/R-Code/Count_Check_Bookdown/site002_sd008_spring2019_72} \end{center}
 
   \bibliography{book.bib,packages.bib}
 

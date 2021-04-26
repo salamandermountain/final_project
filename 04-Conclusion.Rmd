@@ -1,0 +1,7 @@
+# Conclusion {#conclusion}
+
+Overall, the AI seems to perform pretty well! While there are a handful of sites that will still need to be hand-counted, the AI will still be able to save us a lot of time without sacrificing much data! Yay!
+
+```{r deer_image, echo = FALSE, fig.align = "center"}
+knitr::include_graphics("/Users/courtney/Desktop/MS_Thesis/R-Code/Count_Check_Bookdown/site002_sd008_spring2019_72.jpg")
+```

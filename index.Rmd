@@ -9,7 +9,26 @@ biblio-style: apalike
 link-citations: yes
 description: "This book documents an evaluation of an AI used to count deer in camera trap photos by comparing its output to hand counts of deer."
 ---
+# Introduction {#introduction}
 
-# Project Background
+As part of my MS Thesis, I will need to count deer across several thousand camera trap photos. To speed this up, someone developed an AI that will supposedly count deer in the photos for us. However, before we adopt the AI, I want to compare the AI's counts to our handmade counts, and see if there are any site-level differences in its counting ability. This book documents my evaluation of the AI's effectiveness.
 
-As part of my MS Thesis, I will need to count deer across several thousand camera trap photos. To speed this up, someone developed an AI that will supposedly count deer in the photos for us. However, before we adopt the AI, I want to compare the AI's counts to our handmade counts, and see if there are any site-level or seasonal differences in its counting ability. This book documents my evaluation of the AI's effectiveness.
+## Project Goals
+
+The goals of this project are to:
+
+1. Check the agreement between the hand counts of deer and the AI counts of deer
+2. Check if there are site-level discrepancies in the AI counts
+3. Identify problem sites
+
+## Project Outline
+
+Chapter \@ref(introduction): Introduction
+
+Chapter \@ref(database): Database Creation
+
+Chapter \@ref(overall): Checking Overall Count Agreement
+
+Chapter \@ref(site): Checking Site-level Count Agreement
+
+Chapter \@ref(conclusion): Conclusion

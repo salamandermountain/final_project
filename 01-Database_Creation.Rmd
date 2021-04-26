@@ -1,4 +1,4 @@
-# Building Database
+# Database Creation {#database}
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -14,7 +14,7 @@ knitr::include_graphics("/Users/courtney/Desktop/MS_Thesis/R-Code/Count_Check_Bo
 
 The highlighted items are the primary and foreign keys for each dataframe. The black lines show how the foreign keys will connect the dataframes to each other. 
 
-Site_id is the primary key for the site info, since each row contains info on a unique site, and it can also be used as  foreign key to link it to the count dataframes. Jpeg_name is the primary key for both count dataframes, because of their rows contain data for a single unique jpg. Jpeg_id can also serve as a foreign key to connect the count dataframes to each other, since both dataframes contain info on the same set of jpegs.
+Site_id is the primary key for the site info, since each row contains info on a unique site, and it can also be used as  foreign key to link it to the count dataframes. Jpeg_name is the primary key for both count dataframes, because of their rows contain data for a single unique jpg. Jpeg_name can also serve as a foreign key to connect the count dataframes to each other, since both dataframes contain info on the same set of jpegs.
 
 ## Getting Necessary Packages
 
@@ -31,7 +31,7 @@ install.packages("DBI")
 
 In addition to loading `DBI`, I also need `tidyverse` and `lubridate` to clean the data.
 
-```{r library, include=TRUE, message = FALSE}
+```{r library, include=TRUE, eval = TRUE, message = FALSE}
 library(DBI)
 library(tidyverse)
 library(lubridate)
@@ -43,8 +43,7 @@ The full database of all the AI and hand counted photos is apparently too big to
 
 I am loading three csvs: the hand counts of deer, the ai counts of deer, and the information on each site.
 
-
-```{r load, include=TRUE}
+```{r load, include=TRUE, eval = TRUE, message = FALSE}
 hand <- read.csv("/Users/courtney/Desktop/MS_Thesis/Data/Compiled-Raw/summer19.csv", stringsAsFactors = FALSE)
 
 ai <- read.csv("/Users/courtney/Desktop/MS_Thesis/Data/Compiled-Raw/AI.summer19.csv", stringsAsFactors = FALSE)
@@ -56,7 +55,7 @@ site <- read.csv("/Users/courtney/Desktop/MS_Thesis/Data/Compiled-Raw/site_info.
 
 First, I clean the hand count data. To do this, I coerce the photo date/photo time columns to be date and time objects, respectively. I also pull out only the columns I want, to leave out redundant categories like organism family, order, class, etc. and rename them so that common columns/keys will match with the other dataframes.
 
-```{r clean_h, include=TRUE}
+```{r clean_h, include=TRUE, eval = TRUE}
 hand.clean <- hand %>% 
   mutate(dt = ymd_hms(paste(Photo.Date, Photo.time))) %>% 
   select(jpg_name = Raw.Name,
@@ -81,7 +80,7 @@ hand.clean <- hand %>%
 
 Next, I clean the AI count data. Once again, I pull out only the columns I want and leave out extra unnccessary columns like the file path to the jpg, etc. and rename them so that common columns/keys will match with the other dataframes.
 
-```{r clean_a, include=TRUE}
+```{r clean_a, include=TRUE, eval = TRUE}
 ai.clean <- ai %>% 
   select(jpg_name = Raw_Name,
          site_id = Camera.Trap.Name,
@@ -92,7 +91,7 @@ ai.clean <- ai %>%
 
 Lastly, I do modify the "site_id" category so that it is consistent across all three databases. Because the "site" dataframe just includes site as a single number, I remove all the "SITE" characters from the hand count and AI count dataframes.
 
-```{r no_string, include=TRUE}
+```{r no_string, include=TRUE, eval = TRUE, message = FALSE}
 hand.clean$site_id = gsub(" ", "", hand.clean$site_id)
 hand.clean$site_id = gsub("Site", "", hand.clean$site_id)
 
@@ -105,7 +104,7 @@ ai.clean$site_id = gsub("(?<!\\d)0", "", ai.clean$site_id, perl = TRUE)
 
 Here, I create an empty SQL database using the DBI package that I can later populate.
 
-```{r create_db, include=TRUE}
+```{r create_db, include=TRUE, eval = TRUE, message = FALSE}
 counts_db <- dbConnect(RSQLite::SQLite(), "/Users/courtney/Desktop/MS_Thesis/Data/SQL_db.db")
 ```
 
@@ -115,7 +114,7 @@ First, I create the database tables, specificing the primary and foreign keys fo
 
 **Site Info Table:**
 
-```{r create_site_tble, eval=FALSE}
+```{r create_site_tble, eval = FALSE}
 dbExecute(counts_db, 
 "CREATE TABLE site_info (
  site_id double(3) NOT NULL,
@@ -131,7 +130,7 @@ dbExecute(counts_db,
 
 **AI Count Table:**
 
-```{r create_ai_tble, eval=FALSE}
+```{r create_ai_tble, eval = FALSE}
 dbExecute(counts_db, 
 "CREATE TABLE ai_counts (
  jpg_name varchar(100) NOT NULL,
@@ -147,7 +146,7 @@ dbExecute(counts_db,
 
 **Hand Count Table:**
 
-```{r create_hand_tble, eval=FALSE}
+```{r create_hand_tble, eval = FALSE}
 dbExecute(counts_db, 
 "CREATE TABLE hand_counts (
  jpg_name varchar(100) NOT NULL,
