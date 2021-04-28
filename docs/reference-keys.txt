@@ -1,0 +1,14 @@
+introduction
+project-goals
+project-outline
+database
+getting-necessary-packages
+install-dbi
+calling-packages-into-r
+load-the-data
+clean-the-data
+create-a-new-empty-sql-database
+append-the-cleaned-data-to-the-empty-sql-database
+overall
+site
+conclusion
